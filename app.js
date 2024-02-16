@@ -5,6 +5,8 @@ const parser = require("body-parser");
 const cors = require("cors");
 require("dotenv/config");
 const PORT = process.env.PORT || 4001;
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 const transporter = nodemailer.createTransport({
 	service: "Gmail",
@@ -19,20 +21,38 @@ const transporter = nodemailer.createTransport({
 
 app.use(parser.json());
 app.use(cors());
-app.get("/", (req, res) => {
-	return res.json("Hello World");
-});
+// app.get("/", (req, res) => {
+// 	return res.json("Hello World");
+// });
 
-app.post("/contact", (req, res) => {
-	const { name, phone, email } = req.body;
-	const data = {
-		name,
-		phone,
-		email,
-	};
+app.get("/", async (req, res) => {
+	const data = await prisma.user_contact.findMany();
 	return res.json(data);
 });
 
+app.post("/contact", async (req, res) => {
+	const { name, phone, email, subject, message } = req.body;
+
+	const mailOptions = {
+		from: process.env.EMAIL_USER, //send from
+		to: email, ///to someone
+		subject: `Hello ${name}. I received well your ${subject} . I will connect soon ${phone}`, //subnt
+		text: message, //html
+	};
+
+	transporter.sendMail(mailOptions, async (error, info) => {
+		if (error) {
+			console.error("Error sending email:", error);
+			return res.json({ message: error });
+		} else {
+			const data = await prisma.user_contact.create({ data: req.body });
+
+			// return res.json(data);
+
+			return res.json({ data: data, message: "Email Sent" });
+		}
+	});
+});
 app.listen(PORT, () => {
 	console.log(`Server is running at port : ${PORT}`);
 });
