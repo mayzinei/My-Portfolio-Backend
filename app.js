@@ -34,10 +34,12 @@ app.post("/contact", async (req, res) => {
 	const { name, phone, email, subject, message } = req.body;
 
 	const mailOptions = {
-		from: process.env.EMAIL_USER, //send from
-		to: email, ///to someone
-		subject: `Hello ${name}. I received well your ${subject} . I will connect soon ${phone}`, //subnt
-		text: message, //html
+		from: process.env.EMAIL_USER,
+		to: email,
+		// subject : subject,
+		text: `Dear ${name}.
+			I received well your email : ${subject}. I will contact you soon.
+			Thank you & best regards.`,
 	};
 
 	transporter.sendMail(mailOptions, async (error, info) => {
@@ -49,7 +51,7 @@ app.post("/contact", async (req, res) => {
 
 			// return res.json(data);
 
-			return res.json({ data: data, message: "Email Sent" });
+			return res.json({ data: data, message: "Email Sent Successfully!" });
 		}
 	});
 });
