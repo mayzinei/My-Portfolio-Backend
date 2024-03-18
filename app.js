@@ -51,7 +51,7 @@ app.post("/contact", async (req, res) => {
 
 			// return res.json(data);
 
-			return res.json({ data: data, message: "Email Sent" });
+			return res.json({ data: data, message: "Email Sent Successfully!" });
 		}
 	});
 });
